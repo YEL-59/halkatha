@@ -64,15 +64,15 @@ export default function Dashboard({ user, setUser }) {
     try {
       const [sRes, mRes, profRes] = await Promise.all([
         axios.get(
-          "http://halkatha-logic-lab-backend.vercel.app/api/dashboard/stats",
+          "https://halkatha-logic-lab-backend.vercel.app/api/dashboard/stats",
           { headers },
         ),
         axios.get(
-          "http://halkatha-logic-lab-backend.vercel.app/api/dashboard/members",
+          "https://halkatha-logic-lab-backend.vercel.app/api/dashboard/members",
           { headers },
         ),
         axios.get(
-          "http://halkatha-logic-lab-backend.vercel.app/api/dashboard/profiles",
+          "https://halkatha-logic-lab-backend.vercel.app/api/dashboard/profiles",
           { headers },
         ),
       ]);
@@ -100,7 +100,7 @@ export default function Dashboard({ user, setUser }) {
       if (activeTab === "plan") query.append("isPlanned", "true");
 
       const res = await axios.get(
-        `http://halkatha-logic-lab-backend.vercel.app/api/projects?${query.toString()}`,
+        `https://halkatha-logic-lab-backend.vercel.app/api/projects?${query.toString()}`,
         { headers },
       );
       setProjects(res.data.projects);
@@ -179,14 +179,14 @@ export default function Dashboard({ user, setUser }) {
     try {
       if (editingItem) {
         await axios.put(
-          `http://halkatha-logic-lab-backend.vercel.app/api/dashboard/${endpoint}/${editingItem._id}`,
+          `https://halkatha-logic-lab-backend.vercel.app/api/dashboard/${endpoint}/${editingItem._id}`,
           { name: newName },
           { headers },
         );
         toast.success(`${type === "members" ? "Member" : "Profile"} updated`);
       } else {
         await axios.post(
-          `http://halkatha-logic-lab-backend.vercel.app/api/dashboard/${endpoint}`,
+          `https://halkatha-logic-lab-backend.vercel.app/api/dashboard/${endpoint}`,
           { name: newName },
           { headers },
         );
@@ -207,7 +207,7 @@ export default function Dashboard({ user, setUser }) {
     const endpoint = type === "members" ? "members" : "profiles";
     try {
       await axios.delete(
-        `http://halkatha-logic-lab-backend.vercel.app/api/dashboard/${endpoint}/${id}`,
+        `https://halkatha-logic-lab-backend.vercel.app/api/dashboard/${endpoint}/${id}`,
         { headers },
       );
       toast.success("Deleted successfully");
@@ -224,7 +224,7 @@ export default function Dashboard({ user, setUser }) {
     const headers = { Authorization: `Bearer ${token}` };
     try {
       await axios.delete(
-        `http://halkatha-logic-lab-backend.vercel.app/api/projects/${id}`,
+        `https://halkatha-logic-lab-backend.vercel.app/api/projects/${id}`,
         {
           headers,
         },
@@ -241,7 +241,7 @@ export default function Dashboard({ user, setUser }) {
     const headers = { Authorization: `Bearer ${token}` };
     try {
       await axios.patch(
-        `http://halkatha-logic-lab-backend.vercel.app/api/projects/${id}/plan`,
+        `https://halkatha-logic-lab-backend.vercel.app/api/projects/${id}/plan`,
         { isPlanned },
         { headers },
       );
@@ -270,7 +270,7 @@ export default function Dashboard({ user, setUser }) {
 
       toast.loading("Fetching data for export...");
       const res = await axios.get(
-        `http://halkatha-logic-lab-backend.vercel.app/api/projects?${query.toString()}`,
+        `https://halkatha-logic-lab-backend.vercel.app/api/projects?${query.toString()}`,
         { headers },
       );
       toast.dismiss();
