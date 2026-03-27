@@ -15,7 +15,9 @@ import {
   Search,
   Filter,
   BookOpen,
+  Download,
 } from "lucide-react";
+import * as XLSX from "xlsx";
 import ProjectModal from "../components/ProjectModal";
 import UserGuideModal from "../components/UserGuideModal";
 import { differenceInDays, format } from "date-fns";
@@ -234,6 +236,72 @@ export default function Dashboard({ user, setUser }) {
       fetchProjects();
     } catch (err) {
       toast.error("Error updating plan");
+    }
+  };
+
+  const handleExportExcel = async () => {
+    const token = localStorage.getItem("halkhata-token");
+    const headers = { Authorization: `Bearer ${token}` };
+
+    try {
+      const query = new URLSearchParams({
+        page: 1,
+        limit: 10000,
+      });
+      if (filters.search) query.append("search", filters.search);
+      if (filters.member) query.append("member", filters.member);
+      if (filters.status) query.append("status", filters.status);
+      if (filters.sort) query.append("sort", filters.sort);
+      if (filters.urgent) query.append("urgent", "true");
+      if (activeTab === "plan") query.append("isPlanned", "true");
+
+      toast.loading("Fetching data for export...");
+      const res = await axios.get(
+        `https://halkhata-nine.vercel.app/api/projects?${query.toString()}`,
+        { headers },
+      );
+      toast.dismiss();
+
+      const projectsToExport = res.data.projects;
+      if (!projectsToExport || projectsToExport.length === 0) {
+        toast.error("No projects to export.");
+        return;
+      }
+
+      const xlsxData = projectsToExport.map((p, index) => ({
+        "#": index + 1,
+        "Project Name": p.projectName,
+        "Client Name": p.clientName,
+        "Order ID": p.orderId || "---",
+        Profile: p.profileName,
+        Phase: Array.isArray(p.currentPhase)
+          ? p.currentPhase.join(", ")
+          : p.currentPhase,
+        "Assigned To": p.assignedTo?.name || "---",
+        "Team Members": (p.otherMembers || []).map((m) => m.name).join(", "),
+        Status: p.status,
+        "Delivery Date": p.deliveryDate
+          ? format(new Date(p.deliveryDate), "MMM dd, yyyy")
+          : "N/A",
+        "First Delivery Date": p.firstDeliveryDate
+          ? format(new Date(p.firstDeliveryDate), "MMM dd, yyyy")
+          : "N/A",
+        "Value ($)": p.projectValue,
+        "In Plan": p.isPlanned ? "Yes" : "No",
+        "Last Note": p.lastUpdateNote || "",
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(xlsxData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Projects");
+      XLSX.writeFile(
+        workbook,
+        `Halkhata_Projects_${format(new Date(), "yyyy-MM-dd")}.xlsx`,
+      );
+      toast.success("Excel file exported!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to export.");
     }
   };
 
@@ -554,6 +622,17 @@ export default function Dashboard({ user, setUser }) {
                     />
                     <span className="text-orange-600">≤ 4 Days</span>
                   </label>
+                </div>
+
+                <div className="flex items-center ml-auto">
+                  <button
+                    onClick={handleExportExcel}
+                    className="flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-green-600 cursor-pointer bg-green-50 hover:bg-green-100 px-4 py-2.5 rounded-lg transition-colors border border-green-100/50 shadow-sm"
+                    title="Export to Excel"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Export Excel</span>
+                  </button>
                 </div>
               </div>
 
