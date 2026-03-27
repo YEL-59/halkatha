@@ -63,9 +63,9 @@ export default function Dashboard({ user, setUser }) {
     const headers = { Authorization: `Bearer ${token}` };
     try {
       const [sRes, mRes, profRes] = await Promise.all([
-        axios.get("https://halkhata-nine.vercel.app/api/dashboard/stats", { headers }),
-        axios.get("https://halkhata-nine.vercel.app/api/dashboard/members", { headers }),
-        axios.get("https://halkhata-nine.vercel.app/api/dashboard/profiles", { headers }),
+        axios.get("http://localhost:5000/api/dashboard/stats", { headers }),
+        axios.get("http://localhost:5000/api/dashboard/members", { headers }),
+        axios.get("http://localhost:5000/api/dashboard/profiles", { headers }),
       ]);
       setStats(sRes.data);
       setMembers(mRes.data);
@@ -91,7 +91,7 @@ export default function Dashboard({ user, setUser }) {
       if (activeTab === "plan") query.append("isPlanned", "true");
 
       const res = await axios.get(
-        `https://halkhata-nine.vercel.app/api/projects?${query.toString()}`,
+        `http://localhost:5000/api/projects?${query.toString()}`,
         { headers },
       );
       setProjects(res.data.projects);
@@ -126,7 +126,8 @@ export default function Dashboard({ user, setUser }) {
 
   const getRowClass = (project) => {
     if (project.status === "Delivered") return "";
-    const diffMs = new Date(project.deliveryDate).getTime() - new Date().getTime();
+    const diffMs =
+      new Date(project.deliveryDate).getTime() - new Date().getTime();
     if (diffMs <= 4 * 24 * 60 * 60 * 1000)
       return "bg-red-50 hover:bg-red-100 border-l-2 border-red-500";
     return "";
@@ -169,14 +170,14 @@ export default function Dashboard({ user, setUser }) {
     try {
       if (editingItem) {
         await axios.put(
-          `https://halkhata-nine.vercel.app/api/dashboard/${endpoint}/${editingItem._id}`,
+          `http://localhost:5000/api/dashboard/${endpoint}/${editingItem._id}`,
           { name: newName },
           { headers },
         );
         toast.success(`${type === "members" ? "Member" : "Profile"} updated`);
       } else {
         await axios.post(
-          `https://halkhata-nine.vercel.app/api/dashboard/${endpoint}`,
+          `http://localhost:5000/api/dashboard/${endpoint}`,
           { name: newName },
           { headers },
         );
@@ -197,7 +198,7 @@ export default function Dashboard({ user, setUser }) {
     const endpoint = type === "members" ? "members" : "profiles";
     try {
       await axios.delete(
-        `https://halkhata-nine.vercel.app/api/dashboard/${endpoint}/${id}`,
+        `http://localhost:5000/api/dashboard/${endpoint}/${id}`,
         { headers },
       );
       toast.success("Deleted successfully");
@@ -213,7 +214,7 @@ export default function Dashboard({ user, setUser }) {
     const token = localStorage.getItem("halkhata-token");
     const headers = { Authorization: `Bearer ${token}` };
     try {
-      await axios.delete(`https://halkhata-nine.vercel.app/api/projects/${id}`, {
+      await axios.delete(`http://localhost:5000/api/projects/${id}`, {
         headers,
       });
       toast.success("Project deleted");
@@ -228,7 +229,7 @@ export default function Dashboard({ user, setUser }) {
     const headers = { Authorization: `Bearer ${token}` };
     try {
       await axios.patch(
-        `https://halkhata-nine.vercel.app/api/projects/${id}/plan`,
+        `http://localhost:5000/api/projects/${id}/plan`,
         { isPlanned },
         { headers },
       );
@@ -257,7 +258,7 @@ export default function Dashboard({ user, setUser }) {
 
       toast.loading("Fetching data for export...");
       const res = await axios.get(
-        `https://halkhata-nine.vercel.app/api/projects?${query.toString()}`,
+        `http://localhost:5000/api/projects?${query.toString()}`,
         { headers },
       );
       toast.dismiss();
@@ -568,7 +569,11 @@ export default function Dashboard({ user, setUser }) {
                     placeholder="Search Client, Project..."
                     value={filters.search}
                     onChange={(e) =>
-                      setFilters({ ...filters, search: e.target.value, page: 1 })
+                      setFilters({
+                        ...filters,
+                        search: e.target.value,
+                        page: 1,
+                      })
                     }
                     className="w-full bg-gray-50/50 border border-gray-200 rounded-lg pl-9 pr-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors font-medium text-gray-900 shadow-sm"
                   />
@@ -582,7 +587,9 @@ export default function Dashboard({ user, setUser }) {
                 >
                   <option value="">All Members</option>
                   {members.map((m) => (
-                    <option key={m._id} value={m._id}>{m.name}</option>
+                    <option key={m._id} value={m._id}>
+                      {m.name}
+                    </option>
                   ))}
                 </select>
                 <select
@@ -616,7 +623,11 @@ export default function Dashboard({ user, setUser }) {
                       type="checkbox"
                       checked={filters.urgent}
                       onChange={(e) =>
-                        setFilters({ ...filters, urgent: e.target.checked, page: 1 })
+                        setFilters({
+                          ...filters,
+                          urgent: e.target.checked,
+                          page: 1,
+                        })
                       }
                       className="rounded text-orange-500 focus:ring-orange-500 bg-white border-gray-300 w-4 h-4 m-0"
                     />
@@ -703,7 +714,9 @@ export default function Dashboard({ user, setUser }) {
                           </td>
                           <td className="px-6 py-5">
                             <div className="text-gray-900 font-medium whitespace-normal max-w-[150px]">
-                              {Array.isArray(p.currentPhase) ? p.currentPhase.join(", ") : p.currentPhase}
+                              {Array.isArray(p.currentPhase)
+                                ? p.currentPhase.join(", ")
+                                : p.currentPhase}
                             </div>
                             <div className="text-gray-500 text-xs mt-1">
                               {p.profileName}

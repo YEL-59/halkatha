@@ -13,14 +13,17 @@ let isConnected;
 
 const connectDB = async () => {
   if (isConnected) return;
-  
+
   if (!process.env.MONGO_URI) {
-    console.error("CRITICAL ERROR: MONGO_URI is missing from Environment Variables!");
+    console.error(
+      "CRITICAL ERROR: MONGO_URI is missing from Environment Variables!",
+    );
     return;
   }
 
   try {
     const db = await mongoose.connect(process.env.MONGO_URI);
+    console.log(process.env.MONGO_URI);
     isConnected = db.connections[0].readyState;
     console.log("MongoDB Serverless Connection Established");
   } catch (error) {
@@ -45,7 +48,7 @@ app.use("/api/dashboard", dashRoutes);
 
 const PORT = process.env.PORT || 5000;
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== "production") {
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
 
