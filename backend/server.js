@@ -5,9 +5,13 @@ require("dotenv").config();
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://halkatha-logic-lab.vercel.app",
+    credentials: true,
+  }),
+);
 app.use(express.json());
-
 // Ensure database is connected before handling any requests
 let isConnected;
 
